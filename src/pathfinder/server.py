@@ -13,7 +13,15 @@ from typing import Any
 from fastmcp import FastMCP
 
 from .active import endpoint_discover, http_probe, nuclei_scan, port_scan
-from .passive import crtsh_subdomains, host_of, normalize_url, wayback_urls
+from .passive import (
+    certspotter_subdomains,
+    hackertarget_subdomains,
+    host_of,
+    normalize_url,
+    otx_subdomains,
+    urlscan_subdomains,
+    wayback_urls,
+)
 from .runner import resolve
 from .session import store
 from .waf import classify_ip, fingerprint_body, fingerprint_headers, resolve_a
@@ -37,9 +45,11 @@ def subdomain_enum(domain: str, source: str = "all", from_token: str | None = No
 
     Args:
         domain: Root domain, e.g. "example.com".
-        source: "crtsh" (certificate transparency, no deps),
-                "subfinder" (needs the subfinder binary),
-                or "all" (default — merge both).
+        source: Which source(s) to query. Default "all" merges everything:
+                certspotter (CT log), hackertarget (hostsearch),
+                otx (AlienVault passive DNS), urlscan (scan archive),
+                plus the local "subfinder" binary if installed.
+                Any single name can be passed to use one source only.
         from_token: Optional scan_token from an earlier call.
 
     Returns:
@@ -52,13 +62,28 @@ def subdomain_enum(domain: str, source: str = "all", from_token: str | None = No
     sources: list[str] = []
     hosts: dict[str, None] = {}
 
-    if source in ("crtsh", "all"):
-        try:
-            for host in crtsh_subdomains(domain):
-                hosts.setdefault(host, None)
-            sources.append("crtsh")
-        except Exception as exc:  # ponytail: crt.sh rate-limits hard; never break the run
-            sources.append(f"crtsh:error:{type(exc).__name__}")
+    # ponytail: crt.sh removed — rate-limits hard and stalls the whole tool.
+    # These 4 free APIs cover the same CT/DNS surface in parallel.
+    passive_sources = {
+        "certspotter": certspotter_subdomains,
+        "hackertarget": hackertarget_subdomains,
+        "otx": otx_subdomains,
+        "urlscan": urlscan_subdomains,
+    }
+    wanted = list(passive_sources) if source == "all" else ([source] if source in passive_sources else [])
+
+    if wanted:
+        from concurrent.futures import ThreadPoolExecutor
+
+        with ThreadPoolExecutor(max_workers=len(wanted)) as pool:
+            futures = {name: pool.submit(passive_sources[name], domain) for name in wanted}
+            for name, future in futures.items():
+                try:
+                    for host in future.result():
+                        hosts.setdefault(host, None)
+                    sources.append(name)
+                except Exception:
+                    sources.append(f"{name}:error")
 
     if source in ("subfinder", "all") and resolve("subfinder"):
         from .runner import run

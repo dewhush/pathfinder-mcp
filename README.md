@@ -30,7 +30,7 @@ Pathfinder wraps these CLIs. It degrades gracefully — a tool that can't find i
 | ffuf | `endpoint_discover` | `apt install ffuf` or `go install github.com/ffuf/ffuf/v2@latest` |
 | nuclei | `nuclei_scan` | `go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest` |
 
-No external API keys required. Everything is local or free public APIs (crt.sh, Wayback).
+No external API keys required. Everything is local or free public APIs (CertSpotter, HackerTarget, AlienVault OTX, urlscan.io, Wayback).
 
 ## Connect to your agent
 
@@ -65,11 +65,11 @@ hermes mcp add pathfinder --command "python -m pathfinder.server"
 
 ### Passive
 
-**`subdomain_enum`** — passive subdomain enumeration (crt.sh + subfinder if present).
+**`subdomain_enum`** — passive subdomain enumeration (CertSpotter + HackerTarget + OTX + urlscan + subfinder if present).
 
 ```
 subdomain_enum(domain="example.com", source="all")
-subdomain_enum(domain="example.com", source="crtsh")
+subdomain_enum(domain="example.com", source="otx")
 ```
 
 **`dns_resolve`** — A / AAAA / MX / TXT / NS / CNAME records for a host.
