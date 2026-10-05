@@ -43,10 +43,15 @@ claude mcp add pathfinder -- python -m pathfinder.server
 **Claude Code (Docker — no local Python needed):**
 
 ```bash
-claude mcp add pathfinder -- docker run --rm -i ghcr.io/dewhush/pathfinder-mcp
+# pull the release tarball and load it (no registry auth needed)
+curl -L -o /tmp/pathfinder.tar.gz \
+  https://github.com/dewhush/pathfinder-mcp/releases/download/v0.1.0/pathfinder.tar.gz
+gunzip /tmp/pathfinder.tar.gz
+docker load -i /tmp/pathfinder.tar
+claude mcp add pathfinder -- docker run --rm -i ghcr.io/dewhush/pathfinder-mcp:0.1.0
 ```
 
-**Any MCP client (Docker, manual command):** `docker run --rm -i ghcr.io/dewhush/pathfinder-mcp`
+**Any MCP client (Docker, manual command):** `docker run --rm -i ghcr.io/dewhush/pathfinder-mcp:0.1.0`
 
 The Docker image bundles subfinder, httpx, nmap, ffuf and nuclei — the full
 toolset works with zero local installs. Local Python still needs those CLIs on
