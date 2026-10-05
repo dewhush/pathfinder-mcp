@@ -34,11 +34,23 @@ No external API keys required. Everything is local or free public APIs (CertSpot
 
 ## Connect to your agent
 
-**Claude Code:**
+**Claude Code (local Python):**
 
 ```bash
 claude mcp add pathfinder -- python -m pathfinder.server
 ```
+
+**Claude Code (Docker — no local Python needed):**
+
+```bash
+claude mcp add pathfinder -- docker run --rm -i ghcr.io/dewhush/pathfinder-mcp
+```
+
+**Any MCP client (Docker, manual command):** `docker run --rm -i ghcr.io/dewhush/pathfinder-mcp`
+
+The Docker image bundles subfinder, httpx, nmap, ffuf and nuclei — the full
+toolset works with zero local installs. Local Python still needs those CLIs on
+`PATH`; anything missing degrades to `MISSING_TOOL` instead of crashing.
 
 **Hermes:**
 

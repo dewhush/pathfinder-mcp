@@ -12,7 +12,12 @@ from typing import Any
 
 from fastmcp import FastMCP
 
-from .active import endpoint_discover, http_probe, nuclei_scan, port_scan
+from .active import (
+    endpoint_discover as run_endpoint_discover,
+    http_probe as run_http_probe,
+    nuclei_scan as run_nuclei_scan,
+    port_scan as run_port_scan,
+)
 from .passive import (
     certspotter_subdomains,
     hackertarget_subdomains,
@@ -178,7 +183,7 @@ def http_probe(hosts: list[str] | None = None, from_token: str | None = None) ->
             {"status": "BAD_INPUT", "error": "supply hosts or a from_token with hosts"}
         )
 
-    result = http_probe(targets)
+    result = run_http_probe(targets)
     if result.get("status") != "OK":
         return json.dumps(result)
 
@@ -204,7 +209,7 @@ def tech_detect(url: str, from_token: str | None = None) -> str:
     if not url:
         return json.dumps({"status": "BAD_INPUT", "error": "url required"})
 
-    result = http_probe([url])
+    result = run_http_probe([url])
     if result.get("status") != "OK" or not result.get("probes"):
         return json.dumps({"status": "NO_RESPONSE", "error": "target did not respond", "url": url})
 
@@ -372,7 +377,7 @@ def port_scan(host: str, top_ports: int = 1000, from_token: str | None = None) -
     if not host:
         return json.dumps({"status": "BAD_INPUT", "error": "host required"})
 
-    result = port_scan(host, top_ports=top_ports)
+    result = run_port_scan(host, top_ports=top_ports)
     if result.get("status") == "OK":
         session = store.new(hosts=[host], ports=result.get("open_ports", []), tool="port_scan")
         result["scan_token"] = session.token
@@ -398,7 +403,7 @@ def endpoint_discover(
     if not url:
         return json.dumps({"status": "BAD_INPUT", "error": "url required"})
 
-    result = endpoint_discover(url, wordlist=wordlist)
+    result = run_endpoint_discover(url, wordlist=wordlist)
     if result.get("status") == "OK":
         session = store.new(urls=[url], tool="endpoint_discover")
         result["scan_token"] = session.token
@@ -427,7 +432,7 @@ def nuclei_scan(
     if not target:
         return json.dumps({"status": "BAD_INPUT", "error": "target required"})
 
-    result = nuclei_scan(target, templates=templates, severity=severity)
+    result = run_nuclei_scan(target, templates=templates, severity=severity)
     if result.get("status") == "OK":
         session = store.new(urls=[target], tool="nuclei_scan")
         result["scan_token"] = session.token

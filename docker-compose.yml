@@ -1,0 +1,33 @@
+# Pathfinder MCP — one-command run via Docker.
+#
+#   docker compose run --rm pathfinder
+#
+# or wire it into an MCP client that supports command-based servers:
+#
+#   claude mcp add pathfinder -- docker run --rm -i ghcr.io/dewhush/pathfinder-mcp
+#
+services:
+  pathfinder:
+    image: ghcr.io/dewhush/pathfinder-mcp:latest
+    container_name: pathfinder-mcp
+    # MCP stdio: client pipes JSON-RPC over stdin/stdout. Keep tty off so
+    # stdout stays a clean stream for the client to parse.
+    stdin_open: true
+    tty: false
+    # Recon tools need outbound network. host mode avoids NAT hairpinning
+    # issues some Docker setups hit when resolving back to the origin host.
+    network_mode: host
+    # Drop everything not needed for outbound recon. privileged: false.
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    restart: "no"
