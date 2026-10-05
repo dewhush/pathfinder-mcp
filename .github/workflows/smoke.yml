@@ -1,7 +1,0 @@
-name: smoke
-on: [push, workflow_dispatch]
-jobs:
-  ok:
-    runs-on: ubuntu-24.04
-    steps:
-      - run: echo alive
