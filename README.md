@@ -11,6 +11,14 @@ Pathfinder wraps the recon CLI tools security researchers already use (subfinder
 
 ## Quick start
 
+One command, no clone, no venv (needs [`uv`](https://docs.astral.sh/uv/)):
+
+```bash
+uvx --from "git+https://github.com/dewhush/pathfinder-mcp" pathfinder
+```
+
+Or the classic way:
+
 ```bash
 git clone https://github.com/dewhush/pathfinder-mcp.git
 cd pathfinder-mcp
@@ -38,6 +46,12 @@ No external API keys required. Everything is local or free public APIs (CertSpot
 
 ```bash
 claude mcp add pathfinder -- python -m pathfinder.server
+```
+
+**Claude Code (uvx — no local Python, no clone):**
+
+```bash
+claude mcp add pathfinder -- uvx --from "git+https://github.com/dewhush/pathfinder-mcp" pathfinder
 ```
 
 **Claude Code (Docker — no local Python needed):**
