@@ -2,6 +2,8 @@
 
 > MCP server exposing offensive recon tooling to LLM agents — Claude Code, OpenCode, Codex, Hermes, any MCP client.
 
+
+![pathfinder-mcp demo](docs/demo.gif)
 Pathfinder wraps the recon CLI tools security researchers already use (subfinder, httpx, nmap, ffuf, nuclei) into a single MCP server, so an LLM agent can plan and execute reconnaissance itself — not just tell you which commands to run.
 
 - [x] Phase 1: passive subdomain enum, DNS, WAF detection, tech fingerprint, wayback discovery
