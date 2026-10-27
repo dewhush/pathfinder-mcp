@@ -1,17 +1,29 @@
-# pathfinder-mcp
+<div align="center">
 
-> MCP server exposing offensive recon tooling to LLM agents — Claude Code, OpenCode, Codex, Hermes, any MCP client.
+<img src="docs/banner.svg" width="100%" alt="pathfinder-mcp — offensive recon tooling for LLM agents"/>
 
+[![Python](https://img.shields.io/badge/python-3.11%2B-22d3a7?style=flat-square&logo=python&logoColor=white&labelColor=0d141c)](https://www.python.org)
+[![MCP](https://img.shields.io/badge/MCP-compatible-58c7ff?style=flat-square&labelColor=0d141c)](https://modelcontextprotocol.io)
+[![License](https://img.shields.io/badge/license-MIT-8fa2b3?style=flat-square&labelColor=0d141c)](LICENSE)
+[![Docker](https://img.shields.io/badge/docker-ghcr.io%2Fdewhush-22d3a7?style=flat-square&logo=docker&logoColor=white&labelColor=0d141c)](https://github.com/dewhush/pathfinder-mcp/releases)
+[![Tests](https://img.shields.io/badge/tests-pytest-8fa2b3?style=flat-square&labelColor=0d141c)](#development)
+
+**MCP server exposing offensive recon tooling to LLM agents — Claude Code, OpenCode, Codex, Hermes, any MCP client.**
 
 ![pathfinder-mcp demo](docs/demo.gif)
+
+</div>
+
 Pathfinder wraps the recon CLI tools security researchers already use (subfinder, httpx, nmap, ffuf, nuclei) into a single MCP server, so an LLM agent can plan and execute reconnaissance itself — not just tell you which commands to run.
 
-- [x] Phase 1: passive subdomain enum, DNS, WAF detection, tech fingerprint, wayback discovery
-- [x] Phase 2: active port scan, origin-bypass checks, nuclei templates
-- [x] Phase 3: session state — the agent chains outputs across tools (`scan_result` tokens) instead of re-parsing raw text
-- [ ] Phase 4: HTML/JSON report export, target diffing (today vs. yesterday)
+## Roadmap
 
-## Quick start
+- [x] **Phase 1** — passive subdomain enum, DNS, WAF detection, tech fingerprint, wayback discovery
+- [x] **Phase 2** — active port scan, origin-bypass checks, nuclei templates
+- [x] **Phase 3** — session state — the agent chains outputs across tools (`scan_result` tokens) instead of re-parsing raw text
+- [ ] **Phase 4** — HTML/JSON report export, target diffing (today vs. yesterday)
+
+## ⚡ Quick start
 
 One command, no clone, no venv (needs [`uv`](https://docs.astral.sh/uv/)):
 
@@ -42,21 +54,24 @@ Pathfinder wraps these CLIs. It degrades gracefully — a tool that can't find i
 
 No external API keys required. Everything is local or free public APIs (CertSpotter, HackerTarget, AlienVault OTX, urlscan.io, Wayback).
 
-## Connect to your agent
+## 🔌 Connect to your agent
 
-**Claude Code (local Python):**
+<details open>
+<summary><b>Claude Code</b></summary>
+
+Local Python:
 
 ```bash
 claude mcp add pathfinder -- python -m pathfinder.server
 ```
 
-**Claude Code (uvx — no local Python, no clone):**
+uvx — no local Python, no clone:
 
 ```bash
 claude mcp add pathfinder -- uvx --from "git+https://github.com/dewhush/pathfinder-mcp" pathfinder
 ```
 
-**Claude Code (Docker — no local Python needed):**
+Docker — no local Python needed:
 
 ```bash
 # pull the release tarball and load it (no registry auth needed)
@@ -67,19 +82,21 @@ docker load -i /tmp/pathfinder.tar
 claude mcp add pathfinder -- docker run --rm -i ghcr.io/dewhush/pathfinder-mcp:0.1.0
 ```
 
-**Any MCP client (Docker, manual command):** `docker run --rm -i ghcr.io/dewhush/pathfinder-mcp:0.1.0`
+</details>
 
-The Docker image bundles subfinder, httpx, nmap, ffuf and nuclei — the full
-toolset works with zero local installs. Local Python still needs those CLIs on
-`PATH`; anything missing degrades to `MISSING_TOOL` instead of crashing.
-
-**Hermes:**
+<details open>
+<summary><b>Hermes</b></summary>
 
 ```bash
 hermes mcp add pathfinder --command "python -m pathfinder.server"
 ```
 
-**OpenCode / Codex / other MCP clients:** add to your config:
+</details>
+
+<details>
+<summary><b>OpenCode / Codex / other MCP clients</b></summary>
+
+Add to your config:
 
 ```json
 {
@@ -92,93 +109,67 @@ hermes mcp add pathfinder --command "python -m pathfinder.server"
 }
 ```
 
-> Scope: Pathfinder is a tool-wrapper. You are responsible for running it only against infrastructure you own or are authorized to test.
+</details>
 
-## Tools
+**Any MCP client (Docker, manual command):** `docker run --rm -i ghcr.io/dewhush/pathfinder-mcp:0.1.0`
 
-### Passive
+The Docker image bundles subfinder, httpx, nmap, ffuf and nuclei — the full toolset works with zero local installs. Local Python still needs those CLIs on `PATH`; anything missing degrades to `MISSING_TOOL` instead of crashing.
 
-**`subdomain_enum`** — passive subdomain enumeration (CertSpotter + HackerTarget + OTX + urlscan + subfinder if present).
+> [!WARNING]
+> Pathfinder is a tool-wrapper. **You are responsible** for running it only against infrastructure you own or are authorized to test.
 
-```
-subdomain_enum(domain="example.com", source="all")
-subdomain_enum(domain="example.com", source="otx")
-```
+## 🧰 Tools
 
-**`dns_resolve`** — A / AAAA / MX / TXT / NS / CNAME records for a host.
+| | Tool | Wraps | Use |
+| --- | ---- | ----- | --- |
+| 🔍 | `subdomain_enum` | subfinder + public APIs | passive subdomain enumeration |
+| 🌐 | `dns_resolve` | — | A / AAAA / MX / TXT / NS / CNAME |
+| 🧭 | `tech_detect` | httpx | web technology fingerprint |
+| 🕰 | `wayback_discover` | Wayback | historical URLs |
+| 📡 | `http_probe` | httpx | live HTTP(S) services |
+| 🎯 | `port_scan` | nmap | top-N ports |
+| 🛡 | `waf_detect` | headers + TLS | WAF/CDN identification |
+| 🕳 | `origin_bypass_check` | DNS + ranges | WAF origin bypass ([doc](docs/waf-origin-bypass.md)) |
+| 🧨 | `endpoint_discover` | ffuf | path fuzzing (`raft-small` default, `seclists` supported) |
+| 💉 | `nuclei_scan` | nuclei | template scans |
 
-```
+<details>
+<summary><b>Call signatures</b></summary>
+
+```python
+subdomain_enum(domain="example.com", source="all")     # or source="otx"
 dns_resolve(host="example.com", record_type="A")
-```
-
-**`tech_detect`** — web technology fingerprint via httpx.
-
-```
 tech_detect(url="https://example.com")
-```
-
-**`wayback_discover`** — historical URLs from the Wayback Machine for a host.
-
-```
 wayback_discover(host="example.com", limit=500)
-```
 
-### Active
-
-**`http_probe`** — probe a list of hosts for live HTTP(S) services.
-
-```
 http_probe(hosts=["sub.example.com", "api.example.com"])
-```
-
-**`port_scan`** — nmap top-N ports on a host.
-
-```
 port_scan(host="example.com", top_ports=1000)
-```
-
-**`waf_detect`** — WAF/CDN identification from response headers, TLS cert, and WAF fingerprints (Cloudflare, Akamai, AWS, Sucuri, Imperva, Cloudfront).
-
-```
 waf_detect(url="https://example.com")
-```
-
-**`origin_bypass_check`** — check whether a WAF-protected host resolves directly to its origin IP, bypassing the WAF. Resolves the host, compares the IP against known WAF/CDN ranges, and reports `ORIGIN_EXPOSED` / `WAF_PROTECTED` / `UNKNOWN`.
-
-```
-origin_bypass_check(host="example.com")
-```
-
-This is the technique documented in [WAF origin bypass via direct IP access](docs/waf-origin-bypass.md). If a host reports `ORIGIN_EXPOSED`, the origin IP can be reached directly with a spoofed `Host` header:
-
-```
-curl -H "Host: example.com" https://<origin-ip>/
-```
-
-**`endpoint_discover`** — fuzz common paths with ffuf.
-
-```
+origin_bypass_check(host="example.com")        # ORIGIN_EXPOSED / WAF_PROTECTED / UNKNOWN
 endpoint_discover(url="https://example.com", wordlist="raft-small")
+nuclei_scan(target="https://example.com", severity=["high", "critical"])
+nuclei_scan(target="https://example.com", templates=["cves", "exposures"])
+```
+
+Origin bypass technique: [docs/waf-origin-bypass.md](docs/waf-origin-bypass.md). If a host reports `ORIGIN_EXPOSED`, the origin IP can be reached directly with a spoofed `Host` header:
+
+```bash
+curl -H "Host: example.com" https://<origin-ip>/
 ```
 
 Built-in wordlists: `raft-small` (default), `raft-medium`, `raft-big`, `common`, `seclists` (expects `/usr/share/seclists`). Use `wordlist="/abs/path"` for a custom file.
 
-**`nuclei_scan`** — run nuclei templates against a target.
+</details>
 
-```
-nuclei_scan(target="https://example.com", templates=["cves", "exposures"])
-nuclei_scan(target="https://example.com", severity=["high", "critical"])
-```
-
-## Session chaining
+## 🔗 Session chaining
 
 Every tool returns structured JSON plus a `scan_token`. Pass it back into any other tool as `from_token` — Pathfinder resolves the token to the relevant hosts/URLs from the current session, so the agent chains steps without you re-typing targets:
 
-```
-1. subdomain_enum(domain="example.com")      → scan_token=abc123, 42 hosts
-2. http_probe(from_token="abc123")           → scan_token=def456, 7 live
-3. waf_detect(from_token="def456")           → 1 origin exposed
-4. origin_bypass_check(from_token="def456")  → origin IP confirmed
+```mermaid
+flowchart LR
+    A["subdomain_enum<br/>42 hosts"] -->|scan_token| B["http_probe<br/>7 live"]
+    B -->|scan_token| C["waf_detect<br/>1 origin exposed"]
+    C -->|"scan_token"| D["origin_bypass_check<br/>origin IP confirmed"]
 ```
 
 Sessions are per-process and in-memory — nothing leaves the machine.
@@ -195,3 +186,7 @@ ruff format src tests
 ## License
 
 MIT — [0xDew](https://github.com/dewhush). Authorized use only.
+
+<div align="center">
+<sub>Built with FastMCP · wrapping projectdiscovery tooling · for authorized use only</sub>
+</div>

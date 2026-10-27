@@ -1,0 +1,34 @@
+<svg width="1200" height="300" viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="pathfinder-mcp banner">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0f15"/>
+      <stop offset=".6" stop-color="#0d1a22"/>
+      <stop offset="1" stop-color="#070c11"/>
+    </linearGradient>
+    <pattern id="gr" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#22d3a7" stroke-opacity=".07" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3a7"/>
+      <stop offset="1" stop-color="#58c7ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="300" fill="url(#bg)"/>
+  <rect width="1200" height="300" fill="url(#gr)"/>
+  <rect x="0" y="0" width="1200" height="4" fill="url(#accent)"/>
+  <g font-family="JetBrains Mono, Consolas, Menlo, monospace">
+    <text x="80" y="118" font-size="64" font-weight="700" fill="#f2f6f9">pathfinder<tspan fill="#22d3a7">-mcp</tspan></text>
+    <text x="82" y="166" font-size="27" fill="#8fa2b3">MCP server — offensive recon tooling for LLM agents</text>
+    <text x="82" y="232" font-size="26" fill="#22d3a7">$<tspan fill="#e6edf3" dx="10">uvx pathfinder</tspan><tspan dx="14">▌</tspan></text>
+    <g fill="#223140">
+      <circle cx="1064" cy="52" r="9"/><circle cx="1038" cy="52" r="9"/><circle cx="1012" cy="52" r="9"/>
+    </g>
+    <circle cx="1064" cy="52" r="9" fill="#22d3a7"/>
+    <text x="80" y="270" font-size="22" fill="#58c7ff">subfinder</text>
+    <text x="200" y="270" font-size="22" fill="#58c7ff">httpx</text>
+    <text x="300" y="270" font-size="22" fill="#58c7ff">nmap</text>
+    <text x="396" y="270" font-size="22" fill="#58c7ff">ffuf</text>
+    <text x="472" y="270" font-size="22" fill="#58c7ff">nuclei</text>
+    <text x="560" y="270" font-size="22" fill="#8fa2b3">→ any MCP client</text>
+  </g>
+</svg>
